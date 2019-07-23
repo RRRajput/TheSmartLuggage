@@ -226,6 +226,7 @@ class TheSmartLuggage (object):
         in_keyboard = []
         for x in user_bags:
             in_keyboard.append([InlineKeyboardButton(text = str(x),callback_data=str(x))])
+        in_keyboard.append([InlineKeyboardButton(text = "Log Out",callback_data='r')])
         self.bot.sendMessage(chat_id,"Choose among the following bags",reply_markup=InlineKeyboardMarkup(inline_keyboard=in_keyboard))
     
     def on_chat_message(self,msg):
@@ -256,6 +257,8 @@ class TheSmartLuggage (object):
             bag_data = [x for x in user_data if x.bag_id==int(query_data)][0]
 #            self.bot.sendMessage(chat_id,"Showing info for "+query_data+"\n"+str(bag_data))
             self.showBagData(chat_id,bag_data)
+        elif(query_data[0] == 'r'):
+            del self.dict[chat_id]
         else:
             bag_data = [x for x in user_data if x.bag_id==int(query_data[1:])][0]
             if(bag_data.subscriber == None):
