@@ -11,7 +11,7 @@ There is a Telegram interface which can send the location of the luggage to the 
 owner to turn-on the secure mode which makes sure that no one except you can open the luggage. If someone else tries 
 to open the luggage in secure mode, the luggage takes the picture and sends it to the owner via the telegram interface. 
 
-#Configuration
+# Configuration
 The files Catalog.py and Telegram.py are used to turn on the server which hosts all the information and to turn on the 
 telegram user-interface, respectively.
 
