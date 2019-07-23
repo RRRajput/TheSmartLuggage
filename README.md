@@ -19,3 +19,4 @@ Each luggage contains a raspberry pi which needs to run the Secure.py, Location.
 
 All the files require the 'config' and 'broker_info' files. Although, the Catalog.py and Telegram.py don't necessarily 
 require the bag_id field present in the config file, whereas, that field is necessary for the other codes. 
+Each luggage needs to have their own thingspeak channel.
