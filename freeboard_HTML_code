@@ -31,6 +31,13 @@ var myIcon = L.icon({
 	iconSize: [38, 38],
 });
 
-var marker = L.marker([`+lat+`, `+lng+`],{icon: myIcon}).addTo(mymap);
+var marker = L.marker([`+lat+`, `+lng+`],{icon: myIcon,title:'Bag_24'}).addTo(mymap);
+marker.bindPopup("<b>Bag_24</b>");
+marker.on('mouseover', function (e) {
+            this.openPopup();
+        });
+        marker.on('mouseout', function (e) {
+            this.closePopup();
+        });
 </script>
 </html>`
