@@ -12,6 +12,7 @@ import threading
 import requests
 import os
 
+
 class Bag(object):
     def __init__(self,bag_id,user_id=[],broker="",thing_ch="",thing_api_w="",thing_api_r="",tel_token="",cat_url="http://localhost:8000",*args,**kwargs):
         self.bag_id=bag_id
@@ -283,6 +284,8 @@ class Services(object):
     BrokerInfo = json.load(open('broker_info','r'))
     cat = Catalog()
     utente = User()
+    with open('dash.json','r') as file:
+        dashboard = json.load(file)
     
     def PUT(self,*uri,**params):
         if (len(uri) < 2):
@@ -398,10 +401,8 @@ class first(threading.Thread):
             self.cat_url = "http://localhost:8000"
             print("Warning! No config file found")
         conf= {
-                '/': {
-                        'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-                        'tools.sessions.on': True
-                        }
+                '/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher(),\
+                     'tools.sessions.on': True}
                 }
         cherrypy.tree.mount(Services(), '/',conf)
         cherrypy.config.update({'server.socket_host': host})

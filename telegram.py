@@ -93,7 +93,7 @@ class Subscriber(object):
         f.close()
         self.bot.sendPhoto(self.chat_id,open("received.jpg","rb"))
 
-class UserTele(object):
+class BagData(object):
     def __init__(self,user_id,chat_id,JSObject):
         self.user_id = user_id
         self.chat_id = chat_id
@@ -122,31 +122,7 @@ class UserTele(object):
     
     
 
-#class UserChatDict(object):
-#    def __init__(self):
-#        self.user = {}
-#        self.chat = {}
-#    
-#    def add(self,user_id,chat_id):
-#        self.user[user_id]=chat_id
-#        self.chat[chat_id] = user_id
-#        
-#    def findUser(self,chat_id):
-#        if(chat_id in self.chat.keys()):
-#            return self.chat[chat_id]
-#        return False
-#    
-#    def findChat(self,user_id):
-#        if(user_id in self.user.keys()):
-#            return self.user[user_id]
-#        return False
-#    
-#    def Remove(self,user_id,chat_id):
-#        if(user_id in self.user and chat_id in self.chat):
-#            del self.user[user_id]
-#            del self.chat[chat_id]
-#            return True
-#        return False
+
         
     
 class TheSmartLuggage (object):
@@ -155,11 +131,11 @@ class TheSmartLuggage (object):
         self.getToken()
         self.users = {}
         self.dict = {}
-#        if(os.path.isfile('./telegram')):
-#            print("Reading old data....")
-#            f = open('telegram','r')
-#            self.dict = json.load(f)
-#            f.close()
+        if(os.path.isfile('./telegram')):
+            print("Reading old data....")
+            f = open('telegram','r')
+            self.dict = json.load(f)
+            f.close()
         
     def getToken(self):
         resp = requests.get(self.values.cat_url)
@@ -214,7 +190,7 @@ class TheSmartLuggage (object):
                     new_request = requests.get(self.values.cat_url + "/bag/" + str(x))
                     if(new_request.text != '"No bag found"'):
                         print(new_request.json())
-                        self.users[user_id].append(UserTele(user_id,chat_id,new_request.json()))
+                        self.users[user_id].append(BagData(user_id,chat_id,new_request.json()))
                         self.bot.sendMessage(chat_id,"Bag with ID: " + str(x))
                     else:
                         print("Data for Bag with ID: " +str(x) +" missing.")
@@ -258,6 +234,7 @@ class TheSmartLuggage (object):
 #            self.bot.sendMessage(chat_id,"Showing info for "+query_data+"\n"+str(bag_data))
             self.showBagData(chat_id,bag_data)
         elif(query_data[0] == 'r'):
+            self.bot.sendMessage(chat_id,"Logged out. To Re-login, please enter your User ID")
             del self.dict[chat_id]
         else:
             bag_data = [x for x in user_data if x.bag_id==int(query_data[1:])][0]
