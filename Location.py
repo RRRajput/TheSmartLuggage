@@ -12,17 +12,7 @@ import paho.mqtt.client as mqtt
 import json
 import requests
 
-#X = 45.0625
-#Y = 7.678889
-#BAG_ID=1
-#TOPIC = ["/secure/","/getloc/"]
-#PAYLOAD = "mode"
-#THINGSPEAK_URL = "mqtt.thingspeak.com"
-#THINGSPEAK_PORT = 1883
-#THINGSPEAK_CH = "458662"
-#THINGSPEAK_API_W = "VJN3J1G9PWLD60RR"
-#BROKER_URL = "192.168.1.254"
-#BROKER_PORT = 1883
+
 
 class Values(object):
     def __init__(self,cat_url="http://localhost:8000"):
@@ -312,43 +302,6 @@ class MainThreadBag(threading.Thread):
         self.registrar.stop()
         print("End of Main thread for Bag"+str(self.values.bag_id))
         
-#class BagChecker(threading.Thread):
-#    def __init__(self,cat_url="http://localhost:8000"):
-#        threading.Thread.__init__(self)
-#        try:
-#            f = open('config','r')
-#            j_data = json.load(f)
-#            self.cat_url = j_data['cat_url']
-#            f.close()
-#        except IOError:    
-#            self.cat_url =cat_url
-#        self.list_old =[]
-#        self.list_new = []
-#        self.allThreads = {}
-#    
-#    def run(self):
-#        self.running = True
-#        while self.running:
-#            Allbags = requests.get(self.cat_url+"/bag/all")
-#            print(Allbags.text)
-#            self.list_new = [x['bag_id'] for x in Allbags.json()]
-#            new_diff = [x for x in self.list_new if x not in self.list_old]
-#            old_diff = [x for x in self.list_old if x not in self.list_new]
-#            for x in new_diff:
-#                self.allThreads[x] = MainThreadBag(int(x))
-#                self.allThreads[x].start()
-#            for x in old_diff:
-#                self.allThreads[x].stop()
-#                self.allThreads.pop(x)
-#            self.list_old = [x for x in self.list_new]
-#            print("number of running threads %d : %d" % (threading.active_count(),len(self.list_old)))
-#            time.sleep(10)
-#    
-#    def stop(self):
-#        self.running = False
-#        for x in self.allThreads.values():
-#            x.stop()
-
 if __name__ == "__main__":
     FatherThread = MainThreadBag()
     FatherThread.start()

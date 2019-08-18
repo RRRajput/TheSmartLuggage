@@ -10,7 +10,6 @@ import json
 import threading
 import requests
 import os
-from urllib.parse import urlparse
 
 class Values(object):
     def __init__(self,cat_url="http://192.168.1.88:8900"):

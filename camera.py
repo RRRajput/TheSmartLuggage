@@ -23,7 +23,7 @@ class Values(object):
             self.cat_url =cat_url
             self.bag_id = None
             print("Warning! No config file found")
-        self.name = "LocationSensor"+str(self.bag_id)
+        self.name = "Camera"+str(self.bag_id)
         self.pub = ""
         self.sub= ""
         self.payload=""
@@ -138,10 +138,7 @@ class MainThreadBag(threading.Thread):
         self.values = Values()
         resp = requests.get(self.values.cat_url+"/bag/"+str(self.values.bag_id))
         print(resp.text)
-        try:
-            self.values.setVals(resp.json())
-        except:
-            print("Bag not inserted yet")
+        self.values.setVals(resp.json())
         self.cam = Cam(self.values)
         self.registrar = DevRegister(90 + 100*self.values.bag_id,"CameraRegistrar"+str(self.values.bag_id),self.values)
         self.sub = Subscriber("Subscriber" + str(self.values.bag_id),self.values,self.cam)

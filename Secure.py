@@ -4,12 +4,7 @@ import threading
 import paho.mqtt.client as mqtt
 import json
 
-#BROKER = "192.168.1.254"
-#PORT = 1883
-#SUB='/secure/'
-#PAYLOAD = 'mode'
-#PUB = ['/light/','/photo/']
-#BAG_ID=1
+
 class Values(object):
     def __init__(self,cat_url="http://localhost:8000"):
         try:
@@ -22,7 +17,7 @@ class Values(object):
             self.cat_url =cat_url
             self.bag_id = None
             print("Warning! No config file found")
-        self.name = "LocationSensor"+str(self.bag_id)
+        self.name = "Secure"+str(self.bag_id)
         self.pub = []
         self.sub= ""
         self.payload="mode"
@@ -146,7 +141,6 @@ class Monitor(threading.Thread):
             if (self.flags.getSec() and self.flags.getLight()):
                 for i in range(3):
                     self.publisher.pub(self.values.pub[0],json.dumps({self.values.payload:True}))
-                    self.publisher.pub(self.values.pub[1],json.dumps({self.values.payload:True}))
                     print("Publish Light and photo")
                 time.sleep(10)
         print(self.ThreadName + "ended\n")
@@ -208,42 +202,7 @@ class MainThreadBag(threading.Thread):
        self.registrar.stop() 
        print("Ended the Main Thread for Bag"+str(self.values.bag_id))
        
-#class BagChecker(threading.Thread):
-#    def __init__(self,cat_url="http://localhost:8000"):
-#        threading.Thread.__init__(self)
-#        try:
-#            f = open('config','r')
-#            j_data = json.load(f)
-#            self.cat_url = j_data['cat_url']
-#            f.close()
-#        except IOError:    
-#            self.cat_url =cat_url
-#        self.list_old =[]
-#        self.list_new = []
-#        self.allThreads = {}
-#    
-#    def run(self):
-#        self.running = True
-#        while self.running:
-#            Allbags = requests.get(self.cat_url+"/bag/all")
-#            print(Allbags.text)
-#            self.list_new = [x['bag_id'] for x in Allbags.json()]
-#            new_diff = [x for x in self.list_new if x not in self.list_old]
-#            old_diff = [x for x in self.list_old if x not in self.list_new]
-#            for x in new_diff:
-#                self.allThreads[x] = MainThreadBag(int(x))
-#                self.allThreads[x].start()
-#            for x in old_diff:
-#                self.allThreads[x].stop()
-#                self.allThreads.pop(x)
-#            self.list_old = [x for x in self.list_new]
-#            print("number of running threads %d : %d" % (threading.active_count(),len(self.list_old)))
-#            time.sleep(10)
-#    
-#    def stop(self):
-#        self.running = False
-#        for x in self.allThreads.values():
-#            x.stop()
+
        
 if __name__ == "__main__":
     FatherThread = MainThreadBag()

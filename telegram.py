@@ -234,8 +234,11 @@ class TheSmartLuggage (object):
 #            self.bot.sendMessage(chat_id,"Showing info for "+query_data+"\n"+str(bag_data))
             self.showBagData(chat_id,bag_data)
         elif(query_data[0] == 'r'):
-            self.bot.sendMessage(chat_id,"Logged out. To Re-login, please enter your User ID")
+            self.bot.sendMessage(chat_id,"Logging out...")
+            resp = requests.delete("%s/chat/?ID=%s" % (self.values.cat_url,str(chat_id)))
             del self.dict[chat_id]
+            print(resp.text)
+            self.bot.sendMessage(chat_id,"Logged out. To relogin, please enter your User ID")
         else:
             bag_data = [x for x in user_data if x.bag_id==int(query_data[1:])][0]
             if(bag_data.subscriber == None):

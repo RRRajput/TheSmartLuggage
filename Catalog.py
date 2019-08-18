@@ -14,11 +14,13 @@ import os
 
 
 class Bag(object):
-    def __init__(self,bag_id,user_id=[],broker="",thing_ch="",thing_api_w="",thing_api_r="",tel_token="",cat_url="http://localhost:8000",*args,**kwargs):
+    def __init__(self,bag_id,user_id=[],thing_ch="",thing_api_w="",thing_api_r="",cat_url="http://localhost:8000",*args,**kwargs):
         self.bag_id=bag_id
         self.user_id = user_id
-        self.broker =broker
-        self.port = 1883
+        with open('broker_info','r') as file:
+            BrokerInfo = json.load(file)
+            self.broker =BrokerInfo['broker']
+            self.port = BrokerInfo['port']
         self.payload="mode"
         try:
             f = open('config','r')
@@ -36,8 +38,7 @@ class Bag(object):
         self.thing_api_w = thing_api_w
         self.thing_api_r = thing_api_r
         self.sec_sub = '/secure'+str(self.bag_id)+'/'
-        self.sec_pub = ['/light'+str(self.bag_id)+'/','/photo'+str(self.bag_id)+'/']
-        self.tel_token = tel_token
+        self.sec_pub = ['/light'+str(self.bag_id)+'/']
         self.tel_sub = '/Image'+str(self.bag_id)+'/'
         self.tel_pub = ['/getloc'+str(self.bag_id)+'/','/secure'+str(self.bag_id)+'/']
     
@@ -51,10 +52,10 @@ class Bag(object):
         return {"BROKER":self.broker,"PORT":self.port,"SUB":self.sec_sub,"PUB":self.sec_pub,"PAYLOAD":self.payload}
     
     def telegram(self):
-        return {"CAT_URL":self.cat_url,"TOKEN":self.tel_token,"BROKER":self.broker,"PORT":self.port,"SUB":self.tel_sub,"PUB":self.tel_pub,"PAYLOAD":self.payload,"THINGSPEAK_API_R":self.thing_api_r}
+        return {"CAT_URL":self.cat_url,"BROKER":self.broker,"PORT":self.port,"SUB":self.tel_sub,"PUB":self.tel_pub,"PAYLOAD":self.payload,"THINGSPEAK_API_R":self.thing_api_r}
     
     def isInsertable(self):
-        if(len(self.user_id) ==0 or self.broker =="" or self.thing_ch =="" or self.thing_api_w=="" or self.thing_api_r=="" or self.tel_token==""):
+        if(len(self.user_id) ==0 or self.broker =="" or self.thing_ch =="" or self.thing_api_w=="" or self.thing_api_r==""):
             return False
         return True
         
@@ -83,7 +84,7 @@ class Catalog(object):
         self.list.append(obj)
         return "Device added"
     
-    def insertBag(self,bag_id,user_id,broker,thing_channel,thing_api_w,thing_api_r,token):
+    def insertBag(self,bag_id,user_id,thing_channel,thing_api_w,thing_api_r):
         a = [b for b in self.bags if b.bag_id==bag_id]
         if(len(a)>0):
             if(user_id not in a[0].user_id):
@@ -92,7 +93,7 @@ class Catalog(object):
                 return "Bag already exists"
         if(type(user_id) == str or type(user_id) == int):
             user_id = [int(user_id)]
-        b = Bag(bag_id,user_id,broker,thing_channel,thing_api_w,thing_api_r,token)
+        b = Bag(bag_id,user_id,thing_channel,thing_api_w,thing_api_r)
         if(b.isInsertable()):
             self.bags.append(b)
             return "Bag inserted"
@@ -122,7 +123,8 @@ class Catalog(object):
         ans = self.getBag(bag_id)
         if(ans!=False):
             if(ob.upper() == "USER_ID"):
-                ans.user_id.append(int(val))
+                if(int(val) not in ans.user_id):
+                    ans.user_id.append(int(val))
             elif(ob.upper() == "BROKER"):
                 ans.broker = str(val)
             elif(ob.upper() == "PORT"):
@@ -217,7 +219,16 @@ class User(object):
             if(x.get("chat_id") == chat_id):
                 return x
         return False
-    
+
+    def removeChatID(self,chat_id):
+        if(chat_id.isdigit() == False):
+            return "Chat_ID must be a number"
+        chat_id = int(chat_id)
+        for x in self.list:
+            if(x.get("chat_id") == chat_id):
+                x['chat_id'] = -1
+                return "Chat_ID Removed"
+        return "No such chat_id found"
     
     def RetrieveChat(self,chat_id):
         ans = self.getChatID(chat_id)
@@ -248,8 +259,9 @@ class User(object):
                 ans['chat_id'] = int(val)
             elif(ob.upper() == "BAG_ID"):
                 bags = ans['bag_id']
-                bags.append(int(val))
-                ans['bag_id'] = bags
+                if(int(val) not in bags):
+                    bags.append(int(val))
+                    ans['bag_id'] = bags
             else:
                 return "Unknown Arguments"
             return "User %s updated" % ID
@@ -281,7 +293,8 @@ class User(object):
     
 class Services(object):
     exposed = True
-    BrokerInfo = json.load(open('broker_info','r'))
+    with open('broker_info','r') as file:
+        BrokerInfo = json.load(file)
     cat = Catalog()
     utente = User()
     with open('dash.json','r') as file:
@@ -344,22 +357,21 @@ class Services(object):
             l = ["ID","bag_id"]
             if ( set(l) != set(j.keys())):
                 raise cherrypy.HTTPError(440, message = "not enough keys for the body ")
-            self.cat.insert(j.get("ID"),j.get("bag_id"),time.time())
-            return "Device inserted/updated"
+            return self.cat.insert(j.get("ID"),j.get("bag_id"),time.time())
         elif ( uri[0] == "user"):
             l = ["ID","name","surname","emails"]
             if ( set(l) != set(j.keys())):
                 l = ["ID","bag_id"]
                 if(set(l) != set(j.keys())):
                     raise cherrypy.HTTPError(440, message = "not enough keys for the body ")
-                return self.utente.insertBag(j.get("ID"),j.get("bag_id"))
+                return self.utente.change(str(j.get("ID")),str(j.get("bag_id")),"BAG_ID") + " and " + self.cat.change(str(j.get("bag_id")),str(j.get("ID")),"USER_ID")
             return self.utente.insert(j.get("ID"),j.get("name"),j.get("surname"),j.get("emails"),j.get("chat_id"))
         elif ( uri[0] == "bag"):
-            l = ["bag_id","user_id","broker","thing_channel","thing_api_w","thing_api_r","token"]
+            l = ["bag_id","user_id","thing_channel","thing_api_w","thing_api_r"]
             if ( set(l) != set(j.keys())):
                 raise cherrypy.HTTPError(440, message = "not enough keys for the body ")
             if(self.utente.insertBag(j.get("user_id"),j.get("bag_id"))):    
-                return self.cat.insertBag(j.get("bag_id"),j.get("user_id"),j.get("broker"),j.get("thing_channel"),j.get("thing_api_w"),j.get("thing_api_r"),j.get("token"))
+                return self.cat.insertBag(j.get("bag_id"),j.get("user_id"),j.get("thing_channel"),j.get("thing_api_w"),j.get("thing_api_r"))
             return "No user found with corresponding user id"
         else:
             return "Unknown url parameters"
@@ -374,6 +386,8 @@ class Services(object):
             return self.cat.DeleteBag(params.get("ID"))
         elif ( uri[0] == "user"):
             return self.utente.DeleteUser(params.get("ID"))
+        elif ( uri[0] == "chat"):
+            return self.utente.removeChatID(params.get("ID"))
         else:
             raise cherrypy.HTTPError(400, message = "Unknown URI")
         
@@ -440,7 +454,7 @@ class second(threading.Thread):
                 print("Here")
                 r = requests.delete("%s/dev/?ID=%s" % (self.cat_url,str(i)))
                 print (r.text)
-            time.sleep(60)
+            time.sleep(180)
         print("Second thread ended")
         
     def stop(self):
