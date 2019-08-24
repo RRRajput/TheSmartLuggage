@@ -85,7 +85,7 @@ class Subscriber(object):
         m = json.loads(msg.payload)
         print("Camera coso has payload %s",m.get("mode"))
         if(m.get(self.values.payload)):
-            print("Making the foootooo")
+            print("Taking picture...")
             self.cam.capturePic()
         
         

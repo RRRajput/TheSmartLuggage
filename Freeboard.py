@@ -2,7 +2,6 @@
 """
 Created on Thu Aug 15 23:24:09 2019
 
-@author: Rehan Rajput
 """
 import cherrypy
 import time

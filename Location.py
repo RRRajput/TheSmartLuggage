@@ -2,7 +2,6 @@
 """
 Created on Tue Mar 27 15:48:43 2018
 
-@author: Rehan Rajput
 """
 
 import random

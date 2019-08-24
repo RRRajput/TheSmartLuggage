@@ -2,7 +2,6 @@
 """
 Created on Sat Apr 14 15:19:12 2018
 
-@author: Stefania Titone
 """
 
 
@@ -242,7 +241,7 @@ class TheSmartLuggage (object):
         else:
             bag_data = [x for x in user_data if x.bag_id==int(query_data[1:])][0]
             if(bag_data.subscriber == None):
-                bag_data.subscriber = Subscriber("subscriber:"+str(chat_id),self.values.broker,self.values.port,self.bot,chat_id)
+                bag_data.subscriber = Subscriber("subscriber:"+str(bag_data.bag_id),self.values.broker,self.values.port,self.bot,chat_id)
                 bag_data.subscriber.start()
                 bag_data.subscriber.subscribeTopic(bag_data.sub)
             else:

@@ -2,7 +2,6 @@
 """
 Created on Thu Dec 14 11:58:24 2017
 
-@author: Rehan Rajput
 """
 
 import cherrypy
@@ -176,7 +175,7 @@ class Catalog(object):
     
     def RemoveID(self,ID):
         for elem in self.list:
-            if (elem.get("ID") == int(ID) or elem.get("ID") == str(ID)):
+            if (elem.get("ID") == str(ID) or elem.get("ID") == int(ID) ):
                 self.list.remove(elem)
                 return "%s removed" % (ID)
         return "%s not found" % (ID)
