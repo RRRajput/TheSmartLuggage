@@ -9,7 +9,10 @@ The raspberry pi needs to contain a camera and a light sensor -- the light senso
 This is an IoT project, aimed at improving the security of luggages.
 There is a Telegram interface which can send the location of the luggage to the owner on-demand. It also allows the 
 owner to turn-on the secure mode which makes sure that no one except you can open the luggage. If someone else tries 
-to open the luggage in secure mode, the luggage takes the picture and sends it to the owner via the telegram interface. 
+to open the luggage in secure mode, the luggage takes the picture and sends it to the owner via the telegram interface.
+
+To understand the functioning of the this project, have a look at this video (Please read the description before watching the video):
+https://www.youtube.com/watch?v=o8Yhp9cuK8I&t=38s
 
 # Configuration
 The files Catalog.py and Telegram.py are used to turn on the server which hosts all the information and to turn on the 
